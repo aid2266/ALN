@@ -4,6 +4,8 @@
 
 using namespace std;
 
+// SUMA FINITA DE 15 TERMINOS DE 1/n^2
+
 int main(){
     
     float sumUp = 0;
