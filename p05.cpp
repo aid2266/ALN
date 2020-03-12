@@ -4,21 +4,34 @@
 
 using namespace std;
 
-double Maclaurin (double k, double x){
-    if (k == 0) return 1;
-    //else return (1/k)*x + Maclaurin(k-1, x);
-    else return Maclaurin (k-1, x)/k + x*Maclaurin(k-1, x)/k;
-}
-
+// empleamos el algoritmo de horner
 
 int main(){
     
     double n;
     double x;
+    cin >> n >> x; 
+    double p = 1; // init a 1 
+    
+    for (double i = n; i > 0; i--){
+        p = p * x/i + 1; 
+    }
+    
+    cout << p << endl; 
+    
+    /*
     cerr << "enter N: " << endl;
     cin >> n;
     cerr << "enter value of x: " << endl;
     cin >> x;
     cout << Maclaurin(n,x) << endl;
     //cout << setprecision(4) << sum << endl;
+    * */
+    /*
+    //vector<double> VD(n); //longitd n
+    //float p = VD[n]; // init a la pos n-1
+    for (int i = n; i > 0; i--){
+        p = p * x + a[i-1]; 
+    }
+    */ 
 }
