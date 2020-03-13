@@ -1,11 +1,16 @@
 #include <iostream>
-#include "lu.h" // includes the lu file
 #include <vector>
+#include "lu.h"
+#include "resol.h"
 
-#include <fstream> // utilizamos para leer files
+//#include <fstream> // utilizamos para leer files
+const double tol = 0.0000000000001;
+
 
 using namespace std;
 
+typedef vector<double> VD;
+typedef vector <VD> MD;
 
 
 int main(){
@@ -24,7 +29,9 @@ int main(){
     cerr << "Enter matrix b " << endl;
     for (int i = 0; i < n; i++) cin >> b[i]; // reading b
     
-    vector< vector<double>> cA = A; // make a copy of matrix A
+    // vector< vector<double>> cA = A; // make a copy of matrix A
+    
+    lu(A, b, tol);
     
     // llegeix la linea de comandes -- fin , fout
     // fin <- n
@@ -48,4 +55,21 @@ int main(){
     
     
 
+}
+
+
+// DESCOMPOSICIO LU
+vector< vector<double> > lu(MD& A, vector<double>& b, double tol){
+    int n = int(A.size()) // size of matrix A
+    // RECORDAMOS: queremos hacer LU encima de la matriz
+    
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j < n; j++){
+            double pivot = A[i][i];
+            double m = A[i][j] / pivot; // multiplicador
+            A[i][j] -= m*A;
+        }
+    }
+    
+    
 }

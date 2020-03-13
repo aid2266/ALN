@@ -1,19 +1,15 @@
 #include "lu.h" // where we include the file
-#include <iostream>
-#include <vector>
+//#include <iostream>
+//#include <vector>
 
 using namespace std; 
 
 // LU DECOMPOSITION FILE
 
 void lu(){
-    
-    
+    cout << "Hello world" << endl;
+    return;
 }
-
-int main(){
-    
-    
     // tolerancia - 10^-12
     // utilitzem la tolerancia per veure si la matriu es singular
     // creem una funcio que fa la descomposicio LU
@@ -28,6 +24,3 @@ int main(){
     // CALCUL DE ERROR: norma 1 de PA - LU (NO!)
     // fem el calcul a main
 
-
-
-}
