@@ -1,8 +1,19 @@
-#include <iostudio>
+#include "lu.h" // where we include the file
+#include <iostream>
+#include <vector>
 
 using namespace std; 
 
+// LU DECOMPOSITION FILE
+
+void lu(){
+    
+    
+}
+
 int main(){
+    
+    
     // tolerancia - 10^-12
     // utilitzem la tolerancia per veure si la matriu es singular
     // creem una funcio que fa la descomposicio LU
