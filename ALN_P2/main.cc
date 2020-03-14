@@ -2,12 +2,11 @@
 #include <vector>
 #include "lu.h"
 #include "resol.h"
-
 //#include <fstream> // utilizamos para leer files
-const double tol = 0.0000000000001;
-
 
 using namespace std;
+
+const double tol = 0.0000000000001;
 
 typedef vector<double> VD;
 typedef vector <VD> MD;
@@ -32,36 +31,16 @@ int main(){
     // vector< vector<double>> cA = A; // make a copy of matrix A
     
     lu(A, b, tol);
-    
-    // llegeix la linea de comandes -- fin , fout
-    // fin <- n
-    // reserva dinamica de memoria, para matrices A y b
-    // FEM copia de matriu A per calcular el error
-    // utilizar pointers o STL
-    
-    // CRIDEM LU per fer el calcul del error
-    // necessitem la matriu original (abans de fer LU)
-    // ABANS de LU fem copia de A, per veure error
-    // CALCULEM ERROR per norma 1 de PA - LU
-    
-    // CALCULEM ERROR residu - norma 1 de |Bx - b| (on B es copia de A, x sol)
-
-    // OUT PER LA PANTALLA: 
-    // - size n de la matriu
-    // - residu de la descomposicio  (error)
-    // - vector perm
-    // - determinant de la matriu
-    // - residuu de solucio Bx - b (per les tres normes)
-    
-    
 
 }
 
-
-// DESCOMPOSICIO LU
+/*
 vector< vector<double> > lu(MD& A, vector<double>& b, double tol){
     int n = int(A.size()) // size of matrix A
-    // RECORDAMOS: queremos hacer LU encima de la matriz
+    // RECORDAMOS: idealmente queremos hacer LU encima de la matriz
+    // DECLARAMOS: dos matrices, L y U
+    MD(n, VD(n, 0)) L; // lower triangular
+    MD(n, VD(n, 0)) U; // upper triangular
     
     for (int i = 0; i < n; i++){
         for (int j = 0; j < n; j++){
@@ -73,3 +52,4 @@ vector< vector<double> > lu(MD& A, vector<double>& b, double tol){
     
     
 }
+*/
