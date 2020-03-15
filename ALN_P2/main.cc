@@ -57,6 +57,7 @@ void lu(MD& A, int n, double tol){
         L[k][k] = 1; // set diagonals to 1
         VD s(n); // creamos un vector de tamaño
         
+        /*
         for (int i = k; i < n; i++){
             s[i] = *max_element(A[i].begin(), A[i].end(), abs_compare); // elemento max
             double temp = distance(A[i].begin(), A[i].end());
@@ -67,7 +68,9 @@ void lu(MD& A, int n, double tol){
         for (int i = 0; i < n; i++){
             if (temp < A[i][k]/s[i]) temp  = A[i][k]/s[i];
         }
+        
         cout << temp << endl;
+        */
         
         for (int i = k+1; i < n; i++){
             L[i][k] = A[i][k] / U[k][k];
