@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <cmath>
+#include <algorithm>
 //#include "lu.h"
 //#include "resol.h"
 //#include <fstream> // utilizamos para leer files
@@ -34,6 +36,10 @@ int main(){
     
 }
 
+static bool abs_compare(double a, double b){
+    return (abs(double(a)) < abs(double(b)));
+}
+
 
 void lu(MD& A, int n, double tol){
     
@@ -47,8 +53,21 @@ void lu(MD& A, int n, double tol){
     for (int i = 0; i < n; i++) perm[i] = i; // init vector perm
     
     for (int k = 0; k < n; k++){
-        U[k][k] = A[k][k]; // choosing pivot
+        //U[k][k] = A[k][k]; // choosing pivot
         L[k][k] = 1; // set diagonals to 1
+        VD s(n); // creamos un vector de tamaño
+        
+        for (int i = k; i < n; i++){
+            s[i] = *max_element(A[i].begin(), A[i].end(), abs_compare); // elemento max
+            double temp = distance(A[i].begin(), A[i].end());
+            cout << "max element at: " << temp << endl; 
+        }
+        
+        double temp = 0;
+        for (int i = 0; i < n; i++){
+            if (temp < A[i][k]/s[i]) temp  = A[i][k]/s[i];
+        }
+        cout << temp << endl;
         
         for (int i = k+1; i < n; i++){
             L[i][k] = A[i][k] / U[k][k];
