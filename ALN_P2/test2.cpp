@@ -30,11 +30,15 @@ int main(){
 
 double find_max_pivot (const MD& A, int n, int k){
     double pos_max = k; // index of the row with max pivot
-    double max_pivot = abs(A[k][k]); // assume it is initial pivot
+    double max_pivot = 0; // assume it is initial pivot
     
     for (int i = k; i < n; i++){
         
-        double elem = abs(A[i][k]); // current element of column
+        double temp = *max_element(A[i].begin(), A[i].end()); // max element of row
+        //cerr << "the maximum value of the row is: " << temp << endl;
+        
+        double elem = abs(A[i][k]/temp); // current element of column
+        cerr << "current element is " << elem << endl;
         if (elem > max_pivot){
             max_pivot = elem;
             pos_max = i;
