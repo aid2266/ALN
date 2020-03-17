@@ -15,7 +15,9 @@ typedef vector <VD> MD;
 
 void lu(MD& A, int n, double tol);
 void write (MD& A, int n);
+void writeV (VD& b, int n);
 double find_max_pivot (const MD& A, int n, int k);
+static bool abs_compare(double a, double b);
 
 int main(){
     
@@ -45,7 +47,7 @@ int main(){
     
     inFile >> k;
     
-    for (int counter = 0; counter < v; counter++){
+    for (int counter = 0; counter < k; counter++){
         int i;
         double elem;
         inFile >> i >> elem;
@@ -54,13 +56,18 @@ int main(){
     
     cout << "your matrix A is the following: " << endl;
     write(A, n);
+    cout << "your matrix b is the following: " << endl;
+    writeV(b, n);
     
     lu(A, n, tol); // call the function
     
-}
-
-static bool abs_compare(double a, double b){
-    return (abs(double(a)) < abs(double(b)));
+    // ** una vez realizada la descomposicion LU ** //
+    cout << "dimension del sistema: " << n << endl;
+    cout << "estimacion del error de descomposicion PA = LU: " << 'e' << endl;
+    cout << "vector de permutaciones de P: " << 'p' << endl;
+    cout << "determinant de la matriu A: " << 'd' << endl;
+    cout << "estimacio del error del sistema Ax = b, amb norma infinita: " << 'i' << endl;
+    
 }
 
 
@@ -74,8 +81,7 @@ void lu(MD& A, int n, double tol){
     
     for (int i = 0; i < n; i++) perm[i] = i; // init vector perm
     
-    // ************************************ //
-    
+    // ** LU FACTORISATION ** //
     for (int k = 0; k < n; k++){
         L[k][k] = 1; // set diagonal of L
         
@@ -97,7 +103,7 @@ void lu(MD& A, int n, double tol){
         }
         for (int i = k+1; i < n; i++){
             for (int j = k+1 ; j < n; j++){
-                A[i][j] = A[i][j] - L[i][k]*U[k][j];
+                A[i][j] = A[i][j] - L[i][k]*U[k][j]; // renombramos la matriz A
             }
         }
         
@@ -105,8 +111,7 @@ void lu(MD& A, int n, double tol){
         //write(A, n);
         
     }
-    
-    /*
+        
     cerr << "print vector de perm: " << endl;
     for (int i = 0; i < n; i++) cout << perm[i] << ' ';
     cout << endl;
@@ -116,14 +121,14 @@ void lu(MD& A, int n, double tol){
     write(L, n);
     cerr << "matrix U: " << endl;
     write(U, n);
-    */
+    cerr << "matrix perm: " << endl;
+    writeV(perm, n);
+
     
 }
 
 
 // *** function that writes matrix *** //
-
-
 void write(MD& A, int n){
     for (int i = 0; i < n; i++){
         for (int j = 0; j < n; j++){
@@ -133,7 +138,13 @@ void write(MD& A, int n){
     }
     cout << endl;
 }
-
+// *** function that writes vector *** //
+void writeV(VD& b, int n){
+    for (int j = 0; j < n; j++){
+            cout << b[j] << ' ';
+        }
+    cout << endl;
+}
 
 // *** function that finds max pivot *** //
 
@@ -158,4 +169,9 @@ double find_max_pivot (const MD& A, int n, int k){
     
     return pos_max;
     
+}
+
+// ** Function that compares absolute values results ** //
+static bool abs_compare(double a, double b){
+    return (abs(double(a)) < abs(double(b)));
 }
