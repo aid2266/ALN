@@ -16,6 +16,7 @@ typedef vector <VD> MD;
 void lu(MD& A, int n, double tol);
 void write (MD& A, int n);
 void writeV (VD& b, int n);
+MD multiplyMatrix(MD& A, MD& B, int n);
 double find_max_pivot (const MD& A, int n, int k);
 static bool abs_compare(double a, double b);
 
@@ -75,25 +76,23 @@ int main(){
 
 void lu(MD& A, int n, double tol){
     
-    MD L(n, VD(n)); // lower triangular
-    MD U(n, VD(n)) ; // upper triangular
+    MD L(n, VD(n));     // lower triangular
+    MD U(n, VD(n)) ;    // upper triangular
+    MD A_Copy(n, VD(n));// copy of matrix A
+    MD B(n, VD(n));     // empty matrix
     VD perm(n); // vector de perm
     
     for (int i = 0; i < n; i++) perm[i] = i; // init vector perm
+    A_Copy = A;         // make a copy of A
     
     // ** LU FACTORISATION ** //
     for (int k = 0; k < n; k++){
         L[k][k] = 1; // set diagonal of L
-        
         double pos_max = find_max_pivot(A, n, k);
         if (abs(A[pos_max][k]) < tol) cout << "la matriz es singular"; // tecnicamente devuelve -1
         
         swap(A[k], A[pos_max]); // hacer un swap
         swap(perm[k], perm[pos_max]);
-        
-        //cerr << "matrix A after permutation: " << endl;
-        //write(A, n);
-        //cerr << endl;
         
         U[k][k] = A[k][k]; // este valor es el que cogemos como pivote!!
         
@@ -106,12 +105,17 @@ void lu(MD& A, int n, double tol){
                 A[i][j] = A[i][j] - L[i][k]*U[k][j]; // renombramos la matriz A
             }
         }
-        
-        //cerr << "this is the k:" << k << " iteration, with matrix A:" << endl;
-        //write(A, n);
-        
     }
         
+    // ** CALCUL ERROR PA = LU ** //
+    // ** CALCUL DE PA = B ** //
+    
+    for (int i = 0; i < n; i++){
+        swap(B[i], A_Copy[perm[i]]); // empty matrix swap with perm matrix
+    }
+    
+    // ** CALCUL DE LU ** //
+    
     cerr << "print vector de perm: " << endl;
     for (int i = 0; i < n; i++) cout << perm[i] << ' ';
     cout << endl;
@@ -121,10 +125,30 @@ void lu(MD& A, int n, double tol){
     write(L, n);
     cerr << "matrix U: " << endl;
     write(U, n);
-    cerr << "matrix perm: " << endl;
-    writeV(perm, n);
-
     
+    
+    MD C(n, VD(n));
+    C = multiplyMatrix(L, U, n);
+    cerr << "this is matrix PA " << endl;
+    write(B, n);
+    cerr << "this is LU " << endl;
+    write(C, n);
+    
+    // ** ||PA - LU||
+    
+}
+
+// ** function that multiplies two matrices ** //
+MD multiplyMatrix(MD& A, MD& B, int n){
+    MD C(n, VD(n)); // empty matrix
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j < n; j++){
+            for (int k = 0; k < n; k++){
+                C[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+    return C;
 }
 
 
@@ -158,15 +182,11 @@ double find_max_pivot (const MD& A, int n, int k){
         //cerr << "the maximum value of the row is: " << temp << endl;
         
         double elem = abs(A[i][k]/temp); // current element of column
-        cerr << "current element is " << elem << endl;
         if (elem > max_pivot){
             max_pivot = elem;
             pos_max = i;
         }
     }
-    
-    cerr << "position max is: " << pos_max << endl;
-    
     return pos_max;
     
 }
