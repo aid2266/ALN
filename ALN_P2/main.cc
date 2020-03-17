@@ -16,6 +16,7 @@ typedef vector <VD> MD;
 
 void lu(MD& A, int n, double tol);
 void write (MD& A, int n);
+double find_max_pivot (const MD& A, int n, int k);
 
 int main(){
     
@@ -52,9 +53,10 @@ int main(){
         b[i] = elem;
     }
     
+    cout << "your matrix A is the following: " << endl;
     write(A, n);
     
-    //lu(A, n, tol); // call the function
+    lu(A, n, tol); // call the function
     
 }
 
@@ -63,36 +65,32 @@ static bool abs_compare(double a, double b){
 }
 
 
+// *** function that does LU factorisation ** //
+
 void lu(MD& A, int n, double tol){
     
     MD L(n, VD(n)); // lower triangular
     MD U(n, VD(n)) ; // upper triangular
     VD perm(n); // vector de perm
     
-    cerr << "you will LU factorise the following matrix: " << endl;
-    write(A, n);
-    
     for (int i = 0; i < n; i++) perm[i] = i; // init vector perm
     
+    // ************************************ //
+    
     for (int k = 0; k < n; k++){
-        //U[k][k] = A[k][k]; // choosing pivot
-        L[k][k] = 1; // set diagonals to 1
-        VD s(n); // creamos un vector de tamaño
+        L[k][k] = 1; // set diagonal of L
         
-        /*
-        for (int i = k; i < n; i++){
-            s[i] = *max_element(A[i].begin(), A[i].end(), abs_compare); // elemento max
-            double temp = distance(A[i].begin(), A[i].end());
-            cout << "max element at: " << temp << endl; 
-        }
+        double pos_max = find_max_pivot(A, n, k);
+        if (abs(A[pos_max][k]) < tol) cout << "la matriz es singular"; // tecnicamente devuelve -1
         
-        double temp = 0;
-        for (int i = 0; i < n; i++){
-            if (temp < A[i][k]/s[i]) temp  = A[i][k]/s[i];
-        }
+        swap(A[k], A[pos_max]); // hacer un swap
+        swap(perm[k], perm[pos_max]);
         
-        cout << temp << endl;
-        */
+        cerr << "matrix A after permutation: " << endl;
+        write(A, n);
+        cerr << endl;
+        
+        U[k][k] = A[k][k]; // este valor es el que cogemos como pivote!!
         
         for (int i = k+1; i < n; i++){
             L[i][k] = A[i][k] / U[k][k];
@@ -103,10 +101,25 @@ void lu(MD& A, int n, double tol){
                 A[i][j] = A[i][j] - L[i][k]*U[k][j];
             }
         }
+        
+        cerr << "this is the k:" << k << " iteration, with matrix A:" << endl;
+        write(A, n);
+        
     }
+    
+    cerr << "print vector de perm: " << endl;
+    for (int i = 0; i < n; i++) cout << perm[i] << ' ';
+    cout << endl;
+    cerr << "matrix A: " << endl;
+    write(A, n);
+    cerr << "matrix L: " << endl;
     write(L, n);
+    cerr << "matrix U: " << endl;
     write(U, n);
 }
+
+
+// *** function that writes matrix *** //
 
 
 void write(MD& A, int n){
@@ -117,4 +130,30 @@ void write(MD& A, int n){
         cout << endl;
     }
     cout << endl;
+}
+
+
+// *** function that finds max pivot *** //
+
+double find_max_pivot (const MD& A, int n, int k){
+    double pos_max = k; // index of the row with max pivot
+    double max_pivot = 0; // assume it is initial pivot
+    
+    for (int i = k; i < n; i++){
+        
+        double temp = *max_element(A[i].begin(), A[i].end(), abs_compare); // max element of row
+        //cerr << "the maximum value of the row is: " << temp << endl;
+        
+        double elem = abs(A[i][k]/temp); // current element of column
+        cerr << "current element is " << elem << endl;
+        if (elem > max_pivot){
+            max_pivot = elem;
+            pos_max = i;
+        }
+    }
+    
+    cerr << "position max is: " << pos_max << endl;
+    
+    return pos_max;
+    
 }

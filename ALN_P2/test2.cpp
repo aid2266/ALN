@@ -63,6 +63,8 @@ void lu (MD& A, int n, double tol){
     MD L(n, VD(n)); // lower triangular
     MD U(n, VD(n)) ; // upper triangular
     
+    // *********************************** // 
+    
     for (int k = 0; k < n; k++){
         L[k][k] = 1; // set diagonal of L
         
