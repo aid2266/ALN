@@ -23,7 +23,7 @@ static bool abs_compare(double a, double b);
 int main(){
     
     ifstream inFile;
-    inFile.open("test.txt");
+    inFile.open("/Users/aidandeaves/Documents/ALN/ALN_P1/ALN_P2/MAT/M00.DAT"); // change this file!!
     
     // check for any errors
     if (inFile.fail()){
@@ -115,6 +115,16 @@ void lu(MD& A, int n, double tol){
     }
     
     // ** CALCUL DE LU ** //
+    MD C(n, VD(n));
+    C = multiplyMatrix(L, U, n);
+    
+    // ** CALCUL DEL ERROR ** //
+    double norma_1 = 0;
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j < n; j++){
+            norma_1 += B[i][j] - C[i][j];
+        }
+    }
     
     cerr << "print vector de perm: " << endl;
     for (int i = 0; i < n; i++) cout << perm[i] << ' ';
@@ -125,14 +135,11 @@ void lu(MD& A, int n, double tol){
     write(L, n);
     cerr << "matrix U: " << endl;
     write(U, n);
-    
-    
-    MD C(n, VD(n));
-    C = multiplyMatrix(L, U, n);
     cerr << "this is matrix PA " << endl;
     write(B, n);
     cerr << "this is LU " << endl;
     write(C, n);
+    cout << "el error |PA - LU| es: " << norma_1 << endl;
     
     // ** ||PA - LU||
     
