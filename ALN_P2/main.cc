@@ -2,6 +2,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <fstream>
 //#include "lu.h"
 //#include "resol.h"
 //#include <fstream> // utilizamos para leer files
@@ -16,25 +17,44 @@ typedef vector <VD> MD;
 void lu(MD& A, int n, double tol);
 void write (MD& A, int n);
 
-
-
 int main(){
     
-    int n;
-    cin >> n; // size of matrix
-    MD A(n, VD(n)); // init A
-    VD b(n); // init b
+    ifstream inFile;
+    inFile.open("test.txt");
     
-    cerr << "Enter matrix A of size " << n << "x" << n << endl;
-    
-    for (int i = 0; i < n; i++){
-        for (int j = 0; j < n; j++) cin >> A[i][j]; // reading the matrix
+    // check for any errors
+    if (inFile.fail()){
+        cerr << "Error Opening File" << endl;
+        return 0;
     }
     
-    cerr << "Enter matrix b " << endl;
-    for (int i = 0; i < n; i++) cin >> b[i]; // reading b
+    int n; // dim del sistema cuadrado
+    int v; // numero de comoponentes no nulos de la matriz A
+    int k; // ''     ''     ''       ''   ''  de la matriz b
     
-    lu(A, n, tol); // call the function
+    inFile >> n >> v;
+    MD A(n, VD(n));     // creamos las matrices correspondientes
+    VD b(n);
+    
+    for (int counter = 0; counter < v; counter++){
+        int i, j;
+        double elem;
+        inFile >> i >> j >> elem;
+        A[i][j] = elem;
+    }
+    
+    inFile >> k;
+    
+    for (int counter = 0; counter < v; counter++){
+        int i;
+        double elem;
+        inFile >> i >> elem;
+        b[i] = elem;
+    }
+    
+    write(A, n);
+    
+    //lu(A, n, tol); // call the function
     
 }
 
