@@ -85,7 +85,7 @@ void lu (MD& A, int n, double tol){
         }
         
         cerr << "this is the k:" << k << " iteration, with matrix A:" << endl;
-        write(A, n); 
+        write(A, n);
         
     }
     

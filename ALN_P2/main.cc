@@ -16,6 +16,8 @@ typedef vector <VD> MD;
 void lu(MD& A, int n, double tol);
 void write (MD& A, int n);
 
+
+
 int main(){
     
     int n;
