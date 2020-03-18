@@ -13,7 +13,7 @@ const double tol = 0.0000000000001;
 typedef vector<double> VD;
 typedef vector <VD> MD;
 
-void lu(MD& A, int n, double tol);
+int lu(MD& A, int n, double tol);
 void write (MD& A, int n);
 void writeV (VD& b, int n);
 MD multiplyMatrix(MD& A, MD& B, int n);
@@ -60,7 +60,7 @@ int main(){
     cout << "your matrix b is the following: " << endl;
     writeV(b, n);
     
-    lu(A, n, tol); // call the function
+    cout << lu(A, n, tol) << endl; // call the function
     
     // ** una vez realizada la descomposicion LU ** //
     cout << "dimension del sistema: " << n << endl;
@@ -74,12 +74,13 @@ int main(){
 
 // *** function that does LU factorisation ** //
 
-void lu(MD& A, int n, double tol){
+int lu(MD& A, int n, double tol){
     
     MD L(n, VD(n));     // lower triangular
     MD U(n, VD(n)) ;    // upper triangular
     MD A_Copy(n, VD(n));// copy of matrix A
     VD perm(n); // vector de perm
+    int numPermutations = 0;
     
     for (int i = 0; i < n; i++) perm[i] = i; // init vector perm
     A_Copy = A;         // make a copy of A
@@ -88,10 +89,11 @@ void lu(MD& A, int n, double tol){
     for (int k = 0; k < n; k++){
         L[k][k] = 1; // set diagonal of L
         double pos_max = find_max_pivot(A, n, k);
-        if (abs(A[pos_max][k]) < tol) cout << "la matriz es singular"; // tecnicamente devuelve -1
+        if (abs(A[pos_max][k]) < tol) return 0;
         
         swap(A[k], A[pos_max]); // hacer un swap
         swap(perm[k], perm[pos_max]);
+        numPermutations++;
         
         U[k][k] = A[k][k]; // este valor es el que cogemos como pivote!!
         
@@ -142,13 +144,16 @@ void lu(MD& A, int n, double tol){
     write(U, n);
     cerr << "this is the matrix LU" << endl;
     write(C, n);
-    cout << "el error |PA - LU| es: " << norma_1 << endl;
+    cout << "el error |PA - LU| es: " << abs(norma_1) << endl;
     cout << "el vector permutación es: ";
     writeV(perm, n);
     cout << "check # permutaciones, si matriz es singular" << endl;
     cout << "detLU: " << det << endl;
+    cerr << "num of permutations " << numPermutations << endl;
     
     // ** ||PA - LU||
+    if (numPermutations % 2 == 0) return 1;
+    else return -1;
     
 }
 
