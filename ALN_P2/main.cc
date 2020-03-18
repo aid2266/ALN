@@ -3,6 +3,7 @@
 #include <cmath>
 #include <algorithm>
 #include <fstream>
+#include <iomanip>
 //#include "lu.h"
 //#include "resol.h"
 
@@ -13,9 +14,10 @@ const double tol = 0.0000000000001;
 typedef vector<double> VD;
 typedef vector <VD> MD;
 
-int lu(MD& A, int n, double tol);
+int lu(MD& A, VD& b, int n, double tol);
 void write (MD& A, int n);
 void writeV (VD& b, int n);
+void resol(MD& L, MD& U, VD& b, VD& perm, int n);
 MD multiplyMatrix(MD& A, MD& B, int n);
 double find_max_pivot (const MD& A, int n, int k);
 static bool abs_compare(double a, double b);
@@ -60,7 +62,7 @@ int main(){
     cout << "your matrix b is the following: " << endl;
     writeV(b, n);
     
-    cout << lu(A, n, tol) << endl; // call the function
+    cout << lu(A, b, n, tol) << endl; // call the function
     
     // ** una vez realizada la descomposicion LU ** //
     cout << "dimension del sistema: " << n << endl;
@@ -74,7 +76,7 @@ int main(){
 
 // *** function that does LU factorisation ** //
 
-int lu(MD& A, int n, double tol){
+int lu(MD& A, VD& b, int n, double tol){
     
     MD L(n, VD(n));     // lower triangular
     MD U(n, VD(n)) ;    // upper triangular
@@ -135,18 +137,46 @@ int lu(MD& A, int n, double tol){
     write(U, n);
     cerr << "this is the matrix LU" << endl;
     write(C, n);
-    cout << "el error |PA - LU| es: " << abs(norma_1) << endl;
+    cout << "el error |PA - LU| es: " << setprecision(10) << abs(norma_1) << endl;
     cout << "el vector permutación es: ";
     writeV(perm, n);
     cout << "check # permutaciones, si matriz es singular" << endl;
     cout << "detLU: " << det << endl;
     cerr << "num of permutations " << numPermutations << endl;
     
+    resol(L, U, b, perm, n); // resuelve la matriz
+    
     // ** ||PA - LU||
     if (numPermutations % 2 == 0) return 1;
     else return -1;
     
 }
+
+
+void resol(MD& L, MD& U, VD& b, VD& perm, int n){
+    VD y(n); // creamos vector y aux
+    VD x(n); // vector solucion
+    
+    // ** resolvemos Ly = b ** //
+    for (int i = 0; i < n; i++){
+        double sum = 0;
+        for (int j = 0; j < i; j++) sum += L[i][j]*b[perm[j]];
+        y[i] = b[i] - sum;
+    }
+    
+    // ** resolvemos Ux = b ** //
+    for (int i = n; i > 0; i--){
+        double sum = 0;
+        for (int j = n; j > i; j--) sum += U[i][j] * x[j];
+        x[i] = (y[i] - sum) / U[i][i];
+    }
+    
+    cerr << "this is vector x: " << endl;
+    writeV(x, n);
+    
+}
+
+
 
 // ** function that multiplies two matrices ** //
 MD multiplyMatrix(MD& A, MD& B, int n){
