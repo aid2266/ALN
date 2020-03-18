@@ -89,21 +89,21 @@ int lu(MD& A, int n, double tol){
     for (int k = 0; k < n; k++){
         L[k][k] = 1; // set diagonal of L
         double pos_max = find_max_pivot(A, n, k);
-        if (abs(A[pos_max][k]) < tol) return 0;
+        if (abs(A[pos_max][k]) < tol) return 0; // matriz es singular
         
-        swap(A[k], A[pos_max]); // hacer un swap
-        swap(perm[k], perm[pos_max]);
-        numPermutations++;
+        swap(A[k], A[pos_max]); // permutamos filas
+        swap(perm[k], perm[pos_max]); // modificamos matriz perm
+        numPermutations++; // actualizamos numero de permutaciones
         
         U[k][k] = A[k][k]; // este valor es el que cogemos como pivote!!
         
         for (int i = k+1; i < n; i++){
-            L[i][k] = A[i][k] / U[k][k];
+            L[i][k] = A[i][k] / U[k][k]; // establecemos multiplicador
             U[k][i] = A[k][i];
         }
         for (int i = k+1; i < n; i++){
             for (int j = k+1 ; j < n; j++){
-                A[i][j] = A[i][j] - L[i][k]*U[k][j]; // renombramos la matriz A
+                A[i][j] = A[i][j] - L[i][k]*U[k][j]; // calculos sobre A
             }
         }
     }
@@ -114,17 +114,9 @@ int lu(MD& A, int n, double tol){
     C = multiplyMatrix(L, U, n);
     
     // ** CALCUL DEL ERROR ** //
-    // double norma_1 = 0;
     double norma_1 = 0;
     for (int i = 0; i < n; i++){
         for (int j = 0; j < n; j++){
-            /*
-            double LU_ij = 0; // valor de LU en [i][j]
-            for (int k = 0; k < n; k++){
-                LU_ij += L[i][k] * U[k][j]; // esto calcula L*U en casilla [i][j]
-            }
-            norma_1 += A_Copy[perm[i]][j] - LU_ij;
-            */
             norma_1 += A_Copy[perm[i]][j] - C[i][j];
         }
     }
@@ -134,7 +126,6 @@ int lu(MD& A, int n, double tol){
     for (int i = 0; i < n; i++){
         det *= U[i][i];
     }
-    
     
     cerr << "matrix A: " << endl;
     write(A_Copy, n);

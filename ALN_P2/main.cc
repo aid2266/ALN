@@ -13,16 +13,17 @@ const double tol = 0.0000000000001;
 typedef vector<double> VD;
 typedef vector <VD> MD;
 
-void lu(MD& A, int n, double tol);
+int lu(MD& A, int n, double tol);
 void write (MD& A, int n);
 void writeV (VD& b, int n);
+MD multiplyMatrix(MD& A, MD& B, int n);
 double find_max_pivot (const MD& A, int n, int k);
 static bool abs_compare(double a, double b);
 
 int main(){
     
     ifstream inFile;
-    inFile.open("test.txt");
+    inFile.open("/Users/aidandeaves/Documents/ALN/ALN_P1/ALN_P2/MAT/M01.DAT"); // change this file!!
     
     // check for any errors
     if (inFile.fail()){
@@ -59,7 +60,7 @@ int main(){
     cout << "your matrix b is the following: " << endl;
     writeV(b, n);
     
-    lu(A, n, tol); // call the function
+    cout << lu(A, n, tol) << endl; // call the function
     
     // ** una vez realizada la descomposicion LU ** //
     cout << "dimension del sistema: " << n << endl;
@@ -73,58 +74,91 @@ int main(){
 
 // *** function that does LU factorisation ** //
 
-void lu(MD& A, int n, double tol){
+int lu(MD& A, int n, double tol){
     
-    MD L(n, VD(n)); // lower triangular
-    MD U(n, VD(n)) ; // upper triangular
+    MD L(n, VD(n));     // lower triangular
+    MD U(n, VD(n)) ;    // upper triangular
+    MD A_Copy(n, VD(n));// copy of matrix A
     VD perm(n); // vector de perm
+    int numPermutations = 0;
     
     for (int i = 0; i < n; i++) perm[i] = i; // init vector perm
+    A_Copy = A;         // make a copy of A
     
     // ** LU FACTORISATION ** //
     for (int k = 0; k < n; k++){
         L[k][k] = 1; // set diagonal of L
-        
         double pos_max = find_max_pivot(A, n, k);
-        if (abs(A[pos_max][k]) < tol) cout << "la matriz es singular"; // tecnicamente devuelve -1
+        if (abs(A[pos_max][k]) < tol) return 0; // matriz es singular
         
-        swap(A[k], A[pos_max]); // hacer un swap
-        swap(perm[k], perm[pos_max]);
-        
-        //cerr << "matrix A after permutation: " << endl;
-        //write(A, n);
-        //cerr << endl;
+        swap(A[k], A[pos_max]); // permutamos filas
+        swap(perm[k], perm[pos_max]); // modificamos matriz perm
+        numPermutations++; // actualizamos numero de permutaciones
         
         U[k][k] = A[k][k]; // este valor es el que cogemos como pivote!!
         
         for (int i = k+1; i < n; i++){
-            L[i][k] = A[i][k] / U[k][k];
+            L[i][k] = A[i][k] / U[k][k]; // establecemos multiplicador
             U[k][i] = A[k][i];
         }
         for (int i = k+1; i < n; i++){
             for (int j = k+1 ; j < n; j++){
-                A[i][j] = A[i][j] - L[i][k]*U[k][j]; // renombramos la matriz A
+                A[i][j] = A[i][j] - L[i][k]*U[k][j]; // calculos sobre A
             }
         }
-        
-        //cerr << "this is the k:" << k << " iteration, with matrix A:" << endl;
-        //write(A, n);
-        
     }
         
-    cerr << "print vector de perm: " << endl;
-    for (int i = 0; i < n; i++) cout << perm[i] << ' ';
-    cout << endl;
+    // ** CALCUL ERROR PA = LU ** //
+    // ** CALCUL DE LU ** //
+    MD C(n, VD(n));
+    C = multiplyMatrix(L, U, n);
+    
+    // ** CALCUL DEL ERROR ** //
+    double norma_1 = 0;
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j < n; j++){
+            norma_1 += A_Copy[perm[i]][j] - C[i][j];
+        }
+    }
+    
+    // ** CALCULO DEL DETERMINANTE ** //
+    double det = 1;
+    for (int i = 0; i < n; i++){
+        det *= U[i][i];
+    }
+    
     cerr << "matrix A: " << endl;
-    write(A, n);
+    write(A_Copy, n);
     cerr << "matrix L: " << endl;
     write(L, n);
     cerr << "matrix U: " << endl;
     write(U, n);
-    cerr << "matrix perm: " << endl;
+    cerr << "this is the matrix LU" << endl;
+    write(C, n);
+    cout << "el error |PA - LU| es: " << abs(norma_1) << endl;
+    cout << "el vector permutación es: ";
     writeV(perm, n);
-
+    cout << "check # permutaciones, si matriz es singular" << endl;
+    cout << "detLU: " << det << endl;
+    cerr << "num of permutations " << numPermutations << endl;
     
+    // ** ||PA - LU||
+    if (numPermutations % 2 == 0) return 1;
+    else return -1;
+    
+}
+
+// ** function that multiplies two matrices ** //
+MD multiplyMatrix(MD& A, MD& B, int n){
+    MD C(n, VD(n)); // empty matrix
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j < n; j++){
+            for (int k = 0; k < n; k++){
+                C[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+    return C;
 }
 
 
@@ -140,10 +174,11 @@ void write(MD& A, int n){
 }
 // *** function that writes vector *** //
 void writeV(VD& b, int n){
+    cout << '[';
     for (int j = 0; j < n; j++){
             cout << b[j] << ' ';
         }
-    cout << endl;
+    cout << ']' << endl;
 }
 
 // *** function that finds max pivot *** //
@@ -158,15 +193,11 @@ double find_max_pivot (const MD& A, int n, int k){
         //cerr << "the maximum value of the row is: " << temp << endl;
         
         double elem = abs(A[i][k]/temp); // current element of column
-        cerr << "current element is " << elem << endl;
         if (elem > max_pivot){
             max_pivot = elem;
             pos_max = i;
         }
     }
-    
-    cerr << "position max is: " << pos_max << endl;
-    
     return pos_max;
     
 }
