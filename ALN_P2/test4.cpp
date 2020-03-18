@@ -23,7 +23,7 @@ static bool abs_compare(double a, double b);
 int main(){
     
     ifstream inFile;
-    inFile.open("/Users/aidandeaves/Documents/ALN/ALN_P1/ALN_P2/MAT/M00.DAT"); // change this file!!
+    inFile.open("/Users/aidandeaves/Documents/ALN/ALN_P1/ALN_P2/MAT/M01.DAT"); // change this file!!
     
     // check for any errors
     if (inFile.fail()){
@@ -79,7 +79,6 @@ void lu(MD& A, int n, double tol){
     MD L(n, VD(n));     // lower triangular
     MD U(n, VD(n)) ;    // upper triangular
     MD A_Copy(n, VD(n));// copy of matrix A
-    MD B(n, VD(n));     // empty matrix
     VD perm(n); // vector de perm
     
     for (int i = 0; i < n; i++) perm[i] = i; // init vector perm
@@ -108,38 +107,46 @@ void lu(MD& A, int n, double tol){
     }
         
     // ** CALCUL ERROR PA = LU ** //
-    // ** CALCUL DE PA = B ** //
-    
-    for (int i = 0; i < n; i++){
-        swap(B[i], A_Copy[perm[i]]); // empty matrix swap with perm matrix
-    }
-    
     // ** CALCUL DE LU ** //
     MD C(n, VD(n));
     C = multiplyMatrix(L, U, n);
     
     // ** CALCUL DEL ERROR ** //
+    // double norma_1 = 0;
     double norma_1 = 0;
     for (int i = 0; i < n; i++){
         for (int j = 0; j < n; j++){
-            norma_1 += B[i][j] - C[i][j];
+            /*
+            double LU_ij = 0; // valor de LU en [i][j]
+            for (int k = 0; k < n; k++){
+                LU_ij += L[i][k] * U[k][j]; // esto calcula L*U en casilla [i][j]
+            }
+            norma_1 += A_Copy[perm[i]][j] - LU_ij;
+            */
+            norma_1 += A_Copy[perm[i]][j] - C[i][j];
         }
     }
     
-    cerr << "print vector de perm: " << endl;
-    for (int i = 0; i < n; i++) cout << perm[i] << ' ';
-    cout << endl;
+    // ** CALCULO DEL DETERMINANTE ** //
+    double det = 1;
+    for (int i = 0; i < n; i++){
+        det *= U[i][i];
+    }
+    
+    
     cerr << "matrix A: " << endl;
-    write(A, n);
+    write(A_Copy, n);
     cerr << "matrix L: " << endl;
     write(L, n);
     cerr << "matrix U: " << endl;
     write(U, n);
-    cerr << "this is matrix PA " << endl;
-    write(B, n);
-    cerr << "this is LU " << endl;
+    cerr << "this is the matrix LU" << endl;
     write(C, n);
     cout << "el error |PA - LU| es: " << norma_1 << endl;
+    cout << "el vector permutación es: ";
+    writeV(perm, n);
+    cout << "check # permutaciones, si matriz es singular" << endl;
+    cout << "detLU: " << det << endl;
     
     // ** ||PA - LU||
     
@@ -171,10 +178,11 @@ void write(MD& A, int n){
 }
 // *** function that writes vector *** //
 void writeV(VD& b, int n){
+    cout << '[';
     for (int j = 0; j < n; j++){
             cout << b[j] << ' ';
         }
-    cout << endl;
+    cout << ']' << endl;
 }
 
 // *** function that finds max pivot *** //
