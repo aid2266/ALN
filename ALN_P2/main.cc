@@ -94,7 +94,7 @@ int lu(MD& A, VD& b, int n, double tol){
         if (abs(A[pos_max][k]) < tol) return 0; // matriz es singular
         
         swap(A[k], A[pos_max]); // permutamos filas
-        swap(perm[k], perm[pos_max]); // modificamos matriz perm
+        swap(per m[k], perm[pos_max]); // modificamos matriz perm
         numPermutations++; // actualizamos numero de permutaciones
         
         U[k][k] = A[k][k]; // este valor es el que cogemos como pivote!!
@@ -173,32 +173,43 @@ void resol(MD& L, MD& U, VD& b, VD& perm, MD& A, int n){
             y[i] = y[i] - L[i][j]*y[j];
         }
     }
-//    cerr << "this is vector y: " << endl;
-//    writeV(y, n);
+    cerr << "this is vector y: " << endl;
+    writeV(y, n);
     
     // ** resolvemos Ux = y ** //
+    for (int i = n-1; i >= 0; i--){
+        x[i] = y[i];
+        for (int j = i+1; j < n; j++){
+            x[i] = x[i] - U[i][j]*x[j];
+        }
+        x[i] = x[i] / U[i][i];
+    }
+    /*
     for (int i = n-1; i >= 0; i--){
         double sum = 0;
         for (int j = n-1; j > i; j--) sum += U[i][j] * x[j];
         x[i] = (y[i] - sum) / U[i][i];
     }
-    
+    */
     cerr << "this is vector x: " << endl;
     writeV(x, n);
     
     // CALCULO DE LA NORMA ||Ax - b|| aprox 0
-    double norma_1 = 0;
-    double norma_2 = 0;
-    double norma_3 = 0;
+    double norma_1 = 0.;
+    double norma_2 = 0.;
+    double norma_infinity = 0;
     for (int i = 0; i < n; i++){
-        double sum = 0.;
+        double sum_1 = 0.;
+        double sum_infinity = 0;
         for (int j = 0; j < n; j++){
-            sum += A[perm[i]][j]*x[j];
+            sum_1 += A[perm[i]][j]*x[j]; // valor de b'
         }
-        norma_1 += sum - b[i];
+        norma_1 += sum_1 - b[i]; //
+        norma_2 += (sum_1 - b[i])*(sum_1 - b[i]);
     }
     
     cout << "este es el ERROR Ax - b norma 1 : " << norma_1 << endl;
+    cout << "este es el ERROR Ax - b norma 2 : " << norma_2  << endl;
 
 }
 

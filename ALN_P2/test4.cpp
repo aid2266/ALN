@@ -63,12 +63,13 @@ int main(){
     cout << lu(A, n, tol) << endl; // call the function
     
     // ** una vez realizada la descomposicion LU ** //
+    /*
     cout << "dimension del sistema: " << n << endl;
     cout << "estimacion del error de descomposicion PA = LU: " << 'e' << endl;
     cout << "vector de permutaciones de P: " << 'p' << endl;
     cout << "determinant de la matriu A: " << 'd' << endl;
     cout << "estimacio del error del sistema Ax = b, amb norma infinita: " << 'i' << endl;
-    
+    */
 }
 
 
@@ -133,6 +134,13 @@ int lu(MD& A, int n, double tol){
     write(L, n);
     cerr << "matrix U: " << endl;
     write(U, n);
+    cerr << "this is permuted A: " << endl;
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j < n; j++){
+            cout << A_Copy[perm[i]][j] << ' ';
+        }
+        cout << endl;
+    }
     cerr << "this is the matrix LU" << endl;
     write(C, n);
     cout << "el error |PA - LU| es: " << abs(norma_1) << endl;
