@@ -25,7 +25,7 @@ static bool abs_compare(double a, double b);
 int main(){
     
     ifstream inFile;
-    inFile.open("test3.txt"); // change this file!!
+    inFile.open("/Users/aidandeaves/Documents/ALN/ALN_P1/ALN_P2/MAT/M01.DAT"); // change this file!!
     
     // check for any errors
     if (inFile.fail()){
@@ -173,6 +173,9 @@ void resol(MD& L, MD& U, VD& b, VD& perm, MD& A, int n){
             y[i] = y[i] - L[i][j]*y[j];
         }
     }
+//    cerr << "this is vector y: " << endl;
+//    writeV(y, n);
+    
     // ** resolvemos Ux = y ** //
     for (int i = n-1; i >= 0; i--){
         double sum = 0;
@@ -188,17 +191,16 @@ void resol(MD& L, MD& U, VD& b, VD& perm, MD& A, int n){
     double norma_2 = 0;
     double norma_3 = 0;
     for (int i = 0; i < n; i++){
+        double sum = 0.;
         for (int j = 0; j < n; j++){
-            norma_1 += A[i][j]*x[i] - b[perm[i]];
+            sum += A[perm[i]][j]*x[j];
         }
+        norma_1 += sum - b[i];
     }
     
     cout << "este es el ERROR Ax - b norma 1 : " << norma_1 << endl;
-    
-    
-    
-}
 
+}
 
 
 // ** function that multiplies two matrices ** //
