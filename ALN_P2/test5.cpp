@@ -162,6 +162,13 @@ int lu(MD& A, VD& b, int n, double tol){
 }
 
 
+void simpleResol(MD& L, MD& U, VD& b, int n){
+    VD y(n);
+    VD x(n);
+    
+}
+
+
 void resol(MD& L, MD& U, VD& b, VD& perm, MD& A, int n){
     VD y(n); // creamos vector y aux
     VD x(n); // vector solucion
