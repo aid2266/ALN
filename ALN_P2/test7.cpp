@@ -73,37 +73,40 @@ int main(){
 
 int LUPDecompose(MD& A, VD& b,  int N, double Tol) {
 
-    int i, j, k, imax;
+    int imax;
+    int perm_counter = 0;
     MD L(N, VD(N));     // triangular inferior
     MD U(N, VD(N)) ;    // triangular superior
     VD P(N);               // vector de permutacion
     MD A_Copy(N, VD(N));   // copia de la matriz
     A_Copy = A;
     
-    // vector de perm dim N+1, posicion N para numero de operaciones
-    for (i = 0; i <= N; i++) P[i] = i; //Unit permutation matrix, P[N] initialized with N
+    // vector de perm dim N
+    for (int i = 0; i < N; i++) P[i] = i; //Unit permutation matrix, P[N] initialized with N
 
-    for (i = 0; i < N; i++) {
+    for (int i = 0; i < N; i++) {
         int imax = find_max_pivot(A, N, i); // pos pivote max, parcial escalonado
         if (abs(A[imax][i]) < tol) return 0; //failure, matrix is degenerate
         swap(A[i], A[imax]);
         swap(P[i], P[imax]);
-        P[N]++;
+        perm_counter++;
 
-        for (j = i + 1; j < N; j++) {
+        for (int j = i + 1; j < N; j++) {
             A[j][i] /= A[i][i]; // Triangular inferior
 
-            for (k = i + 1; k < N; k++){
+            for (int k = i + 1; k < N; k++){
                 A[j][k] -= A[j][i] * A[i][k];
             }
         }
     }
-    cout << "this is A, contains L and U" << endl;
-    write(A, N);
-    cout << endl;
+    
+    // encontramos L y U dentro de A
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++){
-            if (i == j) U[i][i] = A[i][i];
+            if (i == j) {
+                U[i][i] = A[i][i];
+                L[i][i] = 1; // metodo Doolitle
+            }
             else if (i > j) L[i][j] = A[i][j];
             else U[i][j] = A[i][j];
         }
@@ -113,14 +116,30 @@ int LUPDecompose(MD& A, VD& b,  int N, double Tol) {
     double det = 1.;
     for (int i = 0; i < N; i++) det *= U[i][i];
     
+    /*
+    cout << "this is A, contains L and U" << endl;
+    write(A, N);
+    cout << endl;
     cout << "this is U" << endl;
     write(U, N);
-    cout << "determinante: " << det << endl; 
+    cout << "this is L" << endl;
+    write(L, N);
+    cout << "determinante: " << det << endl;
+    */
+    
+    // ** CALCULO DEL ERROR |PA - LU| norma 1 ** //
+    
+    
     
     LUPSolve(A, P, b, N);
     
-    return 1;  //decomposition done
+    if (perm_counter % 2 == 0) return 1; // numero par de ops
+    else return -1;              // numero impar de ops
 }
+
+
+
+
 
 /* INPUT: A,P filled in LUPDecompose; b - rhs vector; N - dimension
  * OUTPUT: x - solution vector of A*x=b
