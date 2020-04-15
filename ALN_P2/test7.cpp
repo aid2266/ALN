@@ -59,15 +59,7 @@ int main(){
         b[i] = elem;
     }
     
-    /*
-    cout << "your matrix A is the following: " << endl;
-    write(A, n);
-    cout << "your matrix b is the following: " << endl;
-    writeV(b, n);
-    */
-    
     cout << LUPDecompose(A, b, n, tol) << endl; // call the function
-    
     
     // ** una vez realizada la descomposicion LU ** //
     cout << "dimension del sistema: " << n << endl;
@@ -82,39 +74,48 @@ int main(){
 int LUPDecompose(MD& A, VD& b,  int N, double Tol) {
 
     int i, j, k, imax;
-    double maxA, ptr, absA;
-    VD P(N);
-    MD A_Copy(N, VD(N));
+    MD L(N, VD(N));     // triangular inferior
+    MD U(N, VD(N)) ;    // triangular superior
+    VD P(N);               // vector de permutacion
+    MD A_Copy(N, VD(N));   // copia de la matriz
     A_Copy = A;
     
+    // vector de perm dim N+1, posicion N para numero de operaciones
     for (i = 0; i <= N; i++) P[i] = i; //Unit permutation matrix, P[N] initialized with N
 
     for (i = 0; i < N; i++) {
-        maxA = 0.0;
-        imax = i; // pos of max
-
-        for (k = i; k < N; k++)
-            if ((absA = fabs(A[k][i])) > maxA) {
-                maxA = absA;
-                imax = k;
-            }
-
-        if (maxA < Tol) return 0; //failure, matrix is degenerate
-
+        int imax = find_max_pivot(A, N, i); // pos pivote max, parcial escalonado
+        if (abs(A[imax][i]) < tol) return 0; //failure, matrix is degenerate
         swap(A[i], A[imax]);
         swap(P[i], P[imax]);
         P[N]++;
 
         for (j = i + 1; j < N; j++) {
-            A[j][i] /= A[i][i];
+            A[j][i] /= A[i][i]; // Triangular inferior
 
-            for (k = i + 1; k < N; k++)
+            for (k = i + 1; k < N; k++){
                 A[j][k] -= A[j][i] * A[i][k];
+            }
         }
     }
-    cout << "this is A" << endl;
-    
+    cout << "this is A, contains L and U" << endl;
     write(A, N);
+    cout << endl;
+    for (int i = 0; i < N; i++){
+        for (int j = 0; j < N; j++){
+            if (i == j) U[i][i] = A[i][i];
+            else if (i > j) L[i][j] = A[i][j];
+            else U[i][j] = A[i][j];
+        }
+    }
+    
+    // ** Calculo del determinante ** //
+    double det = 1.;
+    for (int i = 0; i < N; i++) det *= U[i][i];
+    
+    cout << "this is U" << endl;
+    write(U, N);
+    cout << "determinante: " << det << endl; 
     
     LUPSolve(A, P, b, N);
     
@@ -201,3 +202,27 @@ void write(MD& A, int n){
     }
     cout << endl; cout << endl; cout << endl;
 }
+
+int find_max_pivot (const MD& A, int n, int k){
+    int pos_max = k; // index of the row with max pivot
+    double max_pivot = 0; // assume it is initial pivot
+    
+    for (int i = k; i < n; i++){
+        double temp = *max_element(A[i].begin(), A[i].end(), abs_compare); // max element of row
+        double elem = abs(A[i][k]/temp); // current element of column
+        if (elem > max_pivot){
+            max_pivot = elem;
+            pos_max = i;
+        }
+    }
+    return pos_max;
+    
+}
+
+// ** Function that compares absolute values results ** //
+static bool abs_compare(double a, double b){
+    return (abs(double(a)) < abs(double(b)));
+}
+
+
+
