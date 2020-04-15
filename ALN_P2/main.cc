@@ -13,8 +13,9 @@ const double tol = 0.0000000000001;
 
 typedef vector<double> VD;
 typedef vector <VD> MD;
-int LUPDecompose(MD& A, VD& b, int n, double tol);
-void LUPSolve(MD& A, MD& A_Copy, VD& P, VD& b, int N);
+
+int LUPDecompose(MD& A, VD& b, VD& x, int n, double tol);
+void LUPSolve(MD& A, MD& A_Copy, VD& P, VD& b, VD& x, int N);
 int find_max_pivot (const MD& A, int n, int k);
 static bool abs_compare(double a, double b);
 void write (MD& A, int n);
@@ -24,7 +25,7 @@ void writeV (VD& b, int n);
 int main(){
     
     ifstream inFile;
-    inFile.open("/Users/aidandeaves/Documents/ALN/ALN_P1/ALN_P2/MAT/M01.DAT"); // change this file!!
+    inFile.open("/Users/aidandeaves/Documents/ALN/ALN_P1/ALN_P2/MAT/M02.DAT"); // change this file!!
     
     // check for any errors
     if (inFile.fail()){
@@ -37,8 +38,9 @@ int main(){
     int k; // ''     ''     ''       ''   ''  de la matriz b
     
     inFile >> n >> v;
-    MD A(n, VD(n));     // creamos las matrices correspondientes
-    VD b(n);
+    MD A(n, VD(n));     // creamos matriz A
+    VD b(n);            // vector b
+    VD x(n);            // vector solucion
     
     for (int counter = 0; counter < v; counter++){
         int i, j;
@@ -56,18 +58,23 @@ int main(){
         b[i] = elem;
     }
     
-    cout << LUPDecompose(A, b, n, tol) << endl; // call the function
+    inFile.close();
+    cout << LUPDecompose(A, b, x, n, tol) << endl; // llamamos funcion descomponer
     
-    // ** una vez realizada la descomposicion LU ** //
-    cout << "dimension del sistema: " << n << endl;
-    cout << "estimacion del error de descomposicion PA = LU: " << 'e' << endl;
-    cout << "vector de permutaciones de P: " << 'p' << endl;
-    cout << "determinant de la matriu A: " << 'd' << endl;
-    cout << "estimacio del error del sistema Ax = b, amb norma infinita: " << 'i' << endl;
+    // ** output.txt ** //
+    // tenemos la solucion pasada por referencia
+    
+    ofstream outFile;
+    outFile.open("output.txt");
+    for (int i = 0; i < n; i++){
+        outFile << i << " " << x[i] << endl;
+    }
+    outFile.close();
+    
 }
 
 
-int LUPDecompose(MD& A, VD& b,  int N, double Tol) {
+int LUPDecompose(MD& A, VD& b, VD& x, int N, double Tol) {
 
     /* IMPORTANTE NOTA AL LECTOR:
      este algoritmo para descomponer A en LU se realiza sobre la matriz A.
@@ -133,14 +140,13 @@ int LUPDecompose(MD& A, VD& b,  int N, double Tol) {
     }
     cout << "Matriz A descompuesta en LU" << endl;
     write(LU, N);
-    cout << "Vector permutacion: " << '[';
-    writeV(P, N);
-    cout << ']' << endl;
     cout << "dim A: " << N << endl;
-    cout << "determinante: " << det << endl;
     cout << "error |PA - LU|_1: " << norma_1 << endl;
+    cout << "Vector permutacion: ";
+    writeV(P, N);
+    cout << "determinante: " << det << endl;
     
-    LUPSolve(A, A_Copy, P, b, N); // llamamos funcion resolver
+    LUPSolve(A, A_Copy, P, b, x, N); // llamamos funcion resolver
     
     if (perm_counter % 2 == 0) return 1; // existoso + #par de filas permutadas
     else return -1; // exitoso, #impar de filas permutadas
@@ -149,10 +155,9 @@ int LUPDecompose(MD& A, VD& b,  int N, double Tol) {
 
 // ** RESOLVEMOS LUx = b ** //
 
-void LUPSolve(MD& A, MD& A_Copy, VD& P, VD& b, int N) {
+void LUPSolve(MD& A, MD& A_Copy, VD& P, VD& b, VD& x, int N) {
     
     VD y(N); // Ly = b
-    VD x(N); // creamos el vector solucion del sistema Ax = b
     
     // ** RESOLVER Ly = b, forward-substitution ** //
     for (int i = 0; i < N; i++) {
@@ -189,10 +194,9 @@ void LUPSolve(MD& A, MD& A_Copy, VD& P, VD& b, int N) {
     cout << "norma 2 error |Ax* - b|: " << sqrt(norma_2) << endl;
     cout << "norma infinit error |Ax* - b|: " << max_norma << endl;
     
-    cout << "solucion del sistema" << endl;
-    cout << '[';
-    for (int i = 0; i < N-1; i++) cout << x[i] << ' ';
-    cout << x[N-1] << ']' << endl;
+    
+    cout << "solucio del sistema" << endl;
+    writeV(x, N);
     
 }
 
@@ -217,7 +221,6 @@ void writeV(VD& b, int n){
             cout << b[j] << ' ';
         }
     cout << ']' << endl;
-    
 }
 
 
@@ -250,5 +253,6 @@ int find_max_pivot (const MD& A, int n, int k){
 static bool abs_compare(double a, double b){
     return (abs(double(a)) < abs(double(b)));
 }
+
 
 
