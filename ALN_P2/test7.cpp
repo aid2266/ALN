@@ -57,10 +57,18 @@ int main(){
         b[i] = elem;
     }
     
+    inFile.close();
     cout << LUPDecompose(A, b, x, n, tol) << endl; // llamamos funcion descomponer
     
     // ** output.txt ** //
     // tenemos la solucion pasada por referencia
+    
+    ofstream outFile;
+    outFile.open("output.txt");
+    for (int i = 0; i < n; i++){
+        outFile << i << " " << x[i] << endl;
+    }
+    outFile.close();
     
 }
 
