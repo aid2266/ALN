@@ -13,16 +13,13 @@ const double tol = 0.0000000000001;
 
 typedef vector<double> VD;
 typedef vector <VD> MD;
-int lu(MD& A, VD& b, int n, double tol);
 int LUPDecompose(MD& A, VD& b, int n, double tol);
 void LUPSolve(MD& A, MD& A_Copy, VD& P, VD& b, int N);
-int copyLUP(MD& A, VD& b, int n, double tol);
-void resol(MD& L, MD& U, VD& b, VD& perm, MD& A, int n);
-MD multiplyMatrix(MD& A, MD& B, int n);
 int find_max_pivot (const MD& A, int n, int k);
 static bool abs_compare(double a, double b);
 void write (MD& A, int n);
 void writeV (VD& b, int n);
+
 
 int main(){
     
@@ -31,7 +28,7 @@ int main(){
     
     // check for any errors
     if (inFile.fail()){
-        cerr << "Error Obrint Fitxer" << endl;
+        cerr << "Error Llegint Fitxer" << endl;
         return 0;
     }
     
@@ -67,41 +64,41 @@ int main(){
     cout << "vector de permutaciones de P: " << 'p' << endl;
     cout << "determinant de la matriu A: " << 'd' << endl;
     cout << "estimacio del error del sistema Ax = b, amb norma infinita: " << 'i' << endl;
-    
 }
 
 
 int LUPDecompose(MD& A, VD& b,  int N, double Tol) {
 
-    /* DISCLAIMER:
+    /* IMPORTANTE NOTA AL LECTOR:
      este algoritmo para descomponer A en LU se realiza sobre la matriz A.
-     La matriz descompuesta A' = L + U. Donde L es una mat-tri-inf con 0's
-     en la diagonal (añadimos 1's a posteriori) y U una mat-tri-sup.
+     La matriz descompuesta A' = L + U. Donde L es triangular inferior con 0's
+     en la diagonal (añadimos 1's a posteriori) y U triangular superior.
+     
+     Se utiliza el pivotage parcial escalonado. Encontramos el pivote maximo
+     mediante la funcion find_max_pivot que se encuentra al final del fichero.
     */
     
-    int imax;
+    MD L(N, VD(N));         // triangular inferior
+    MD U(N, VD(N)) ;        // triangular superior
+    VD P(N);                // vector de permutacion
+    MD A_Copy(N, VD(N));    // copia de la matriz
     int perm_counter = 0;
-    MD L(N, VD(N));     // triangular inferior
-    MD U(N, VD(N)) ;    // triangular superior
-    VD P(N);               // vector de permutacion
-    MD A_Copy(N, VD(N));   // copia de la matriz
     A_Copy = A;
     
-    for (int i = 0; i < N; i++) P[i] = i; //init vect permutacion unitario
+    for (int i = 0; i < N; i++) P[i] = i; //init vect permutacion
 
     // ** FACTORIZACION LU guardado en la matriz A** //
     for (int i = 0; i < N; i++) {
-        int imax = find_max_pivot(A, N, i); // pos pivote max, parcial escalonado
+        int imax = find_max_pivot(A, N, i); // pos pivote max, parcial escalonado, mirar funcion final del documento
         if (abs(A[imax][i]) < tol) return 0; //matriz es degenerada
-        swap(A[i], A[imax]);
-        swap(P[i], P[imax]);
+        swap(A[i], A[imax]); // realizamos cambio de filas
+        swap(P[i], P[imax]); // actualizamos vector perm.
         perm_counter++; // contador del numero de permutaciones
 
         for (int j = i + 1; j < N; j++) {
-            A[j][i] /= A[i][i]; // calculo del multiplicador
-
+            A[j][i] /= A[i][i]; // multiplicador
             for (int k = i + 1; k < N; k++){
-                A[j][k] -= A[j][i] * A[i][k];
+                A[j][k] -= A[j][i] * A[i][k]; // algoritmo sobre A
             }
         }
     }
@@ -110,8 +107,8 @@ int LUPDecompose(MD& A, VD& b,  int N, double Tol) {
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++){
             if (i == j) {
-                U[i][i] = A[i][i];
-                L[i][i] = 1; // metodo Doolitle
+                U[i][i] = A[i][i]; // pivotes en diagonal son de U
+                L[i][i] = 1;       // imponemos diagonal de 1's
             }
             else if (i > j) L[i][j] = A[i][j];
             else U[i][j] = A[i][j];
@@ -123,15 +120,15 @@ int LUPDecompose(MD& A, VD& b,  int N, double Tol) {
     for (int i = 0; i < N; i++) det *= U[i][i];
     
     // ** CALCULO DEL ERROR |PA - LU| norma 1 ** //
-    MD LU(N, VD(N)); // matriz producto L*U
+    MD LU(N, VD(N)); // inicializamos matriz producto L*U
     
     double norma_1 = 0.;
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++) {
             for (int k = 0; k < N; k++){
-                LU[i][j] += L[i][k] * U[k][j]; // calculamos LU
+                LU[i][j] += L[i][k] * U[k][j]; // calculamos producto LU
             }
-            norma_1 = abs(A_Copy[P[i]][j] - LU[i][j]); // PA - LU
+            norma_1 = abs(A_Copy[P[i]][j] - LU[i][j]); // abs(PA - LU)
         }
     }
     cout << "Matriz A descompuesta en LU" << endl;
@@ -143,20 +140,19 @@ int LUPDecompose(MD& A, VD& b,  int N, double Tol) {
     cout << "determinante: " << det << endl;
     cout << "error |PA - LU|_1: " << norma_1 << endl;
     
-    LUPSolve(A, A_Copy, P, b, N);
+    LUPSolve(A, A_Copy, P, b, N); // llamamos funcion resolver
     
-    if (perm_counter % 2 == 0) return 1; // numero par de ops
-    else return -1;              // numero impar de ops
+    if (perm_counter % 2 == 0) return 1; // existoso + #par de filas permutadas
+    else return -1; // exitoso, #impar de filas permutadas
 }
 
-/* INPUT: A,P filled in LUPDecompose; b - rhs vector; N - dimension
- * OUTPUT: x - solution vector of A*x=b
- */
+
+// ** RESOLVEMOS LUx = b ** //
+
 void LUPSolve(MD& A, MD& A_Copy, VD& P, VD& b, int N) {
     
-    VD y(N);
-    VD x(N); // creamos el vector solucion
-    // tenemos que resolver LUx = b
+    VD y(N); // Ly = b
+    VD x(N); // creamos el vector solucion del sistema Ax = b
     
     // ** RESOLVER Ly = b, forward-substitution ** //
     for (int i = 0; i < N; i++) {
@@ -164,6 +160,7 @@ void LUPSolve(MD& A, MD& A_Copy, VD& P, VD& b, int N) {
         for (int k = 0; k < i; k++)
             y[i] -= A[i][k] * y[k];
     }
+    
     // ** RESOLVER Ux = y, back-substitution ** //
     for (int i = N - 1; i >= 0; i--) {
         x[i] = y[i];
@@ -174,69 +171,35 @@ void LUPSolve(MD& A, MD& A_Copy, VD& P, VD& b, int N) {
     // ** CALCULO DE ERRORES |Ax* - b| ** //
     double norma_1 = 0.;
     double norma_2 = 0.;
-    double norma_inf = 0.;
+    double max_norma = 0;
     
     for (int i = 0; i < N; i++){
-        double Ax = 0.;
+        double Ax = 0.; // calculo de Ax (matriz original por vector solucion)
         for (int j = 0; j < N; j++){
-            Ax += A_Copy[i][j]*x[j]; // valor de b'
+            Ax += A_Copy[P[i]][j]*x[j]; // utilizamos matriz original permutada
         }
-        norma_1 += Ax - b[i]; //
+        norma_1 += abs(Ax - b[P[i]]);
+        norma_2 += norma_1 * norma_1;
+        
+        double temp = abs(Ax - b[P[i]]);
+        if (temp > max_norma) max_norma = temp; // hallamos fila maxima
     }
     
     cout << "norma 1 error |Ax* - b|: " << norma_1 << endl;
-    
+    cout << "norma 2 error |Ax* - b|: " << sqrt(norma_2) << endl;
+    cout << "norma infinit error |Ax* - b|: " << max_norma << endl;
     
     cout << "solucion del sistema" << endl;
-    for (int i = 0; i < N; i++) cout << x[i] << ' ';
-    cout << endl;
+    cout << '[';
+    for (int i = 0; i < N-1; i++) cout << x[i] << ' ';
+    cout << x[N-1] << ']' << endl;
     
 }
 
-/* INPUT: A,P filled in LUPDecompose; N - dimension
- * OUTPUT: IA is the inverse of the initial matrix
- */
-void LUPInvert(double **A, int *P, int N, double **IA) {
-  
-    for (int j = 0; j < N; j++) {
-        for (int i = 0; i < N; i++) {
-            if (P[i] == j)
-                IA[i][j] = 1.0;
-            else
-                IA[i][j] = 0.0;
 
-            for (int k = 0; k < i; k++)
-                IA[i][j] -= A[i][k] * IA[k][j];
-        }
+// ** FUNCIONES COMPLEMENTARIAS ** //
 
-        for (int i = N - 1; i >= 0; i--) {
-            for (int k = i + 1; k < N; k++)
-                IA[i][j] -= A[i][k] * IA[k][j];
-
-            IA[i][j] = IA[i][j] / A[i][i];
-        }
-    }
-}
-
-/* INPUT: A,P filled in LUPDecompose; N - dimension.
- * OUTPUT: Function returns the determinant of the initial matrix
- */
-double LUPDeterminant(double **A, int *P, int N) {
-
-    double det = A[0][0];
-
-    for (int i = 1; i < N; i++)
-        det *= A[i][i];
-
-    if ((P[N] - N) % 2 == 0)
-        return det;
-    else
-        return -det;
-    
-    cout << "determinante del sistema " << det << endl;
-}
-
-// escribe matriz
+// Escribe la matriz //
 void write(MD& A, int n){
     for (int i = 0; i < n; i++){
         for (int j = 0; j < n; j++){
@@ -247,7 +210,7 @@ void write(MD& A, int n){
     cout << endl; cout << endl; cout << endl;
 }
 
-// escribe vector
+// Escribe un vector //
 void writeV(VD& b, int n){
     cout << '[';
     for (int j = 0; j < n; j++){
@@ -257,12 +220,22 @@ void writeV(VD& b, int n){
     
 }
 
+
+// Encuentra pivote maximo //
 int find_max_pivot (const MD& A, int n, int k){
-    int pos_max = k; // index of the row with max pivot
-    double max_pivot = 0; // assume it is initial pivot
+    
+    /* IMPORTANTE NOTA AL LECTOR:
+    La funcion max_element pertenece a la libreria algorithm que halla
+    el elemento maximo de la fila de una matriz.
+    Incluye como parametro la funcion abs_compare que compara los valores de
+    cada fila en valor absoluto, extrayendo el maximo.
+    */
+    
+    int pos_max = k; // indice de fila con pivote max
+    double max_pivot = 0; // inicializamos a primer pivote
     
     for (int i = k; i < n; i++){
-        double temp = *max_element(A[i].begin(), A[i].end(), abs_compare); // max element of row
+        double temp = *max_element(A[i].begin(), A[i].end(), abs_compare); // funcion que halla el elemento maximo de la fila,
         double elem = abs(A[i][k]/temp); // current element of column
         if (elem > max_pivot){
             max_pivot = elem;
@@ -273,7 +246,7 @@ int find_max_pivot (const MD& A, int n, int k){
     
 }
 
-// ** Function that compares absolute values results ** //
+// ** Funcion que halla elemento maximo en valor absoluto ** //
 static bool abs_compare(double a, double b){
     return (abs(double(a)) < abs(double(b)));
 }
