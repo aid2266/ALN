@@ -15,7 +15,7 @@ typedef vector<double> VD;
 typedef vector <VD> MD;
 int lu(MD& A, VD& b, int n, double tol);
 int LUPDecompose(MD& A, VD& b, int n, double tol);
-void LUPSolve(MD& A, VD& P, VD& b, int N);
+void LUPSolve(MD& A, MD& A_Copy, VD& P, VD& b, int N);
 int copyLUP(MD& A, VD& b, int n, double tol);
 void resol(MD& L, MD& U, VD& b, VD& perm, MD& A, int n);
 MD multiplyMatrix(MD& A, MD& B, int n);
@@ -143,7 +143,7 @@ int LUPDecompose(MD& A, VD& b,  int N, double Tol) {
     cout << "determinante: " << det << endl;
     cout << "error |PA - LU|_1: " << norma_1 << endl;
     
-    LUPSolve(A, P, b, N);
+    LUPSolve(A, A_Copy, P, b, N);
     
     if (perm_counter % 2 == 0) return 1; // numero par de ops
     else return -1;              // numero impar de ops
@@ -152,22 +152,40 @@ int LUPDecompose(MD& A, VD& b,  int N, double Tol) {
 /* INPUT: A,P filled in LUPDecompose; b - rhs vector; N - dimension
  * OUTPUT: x - solution vector of A*x=b
  */
-void LUPSolve(MD& A, VD& P, VD& b, int N) {
+void LUPSolve(MD& A, MD& A_Copy, VD& P, VD& b, int N) {
     
+    VD y(N);
     VD x(N); // creamos el vector solucion
+    // tenemos que resolver LUx = b
     
+    // ** RESOLVER Ly = b, forward-substitution ** //
     for (int i = 0; i < N; i++) {
-        x[i] = b[P[i]]; // solucion permutada
+        y[i] = b[P[i]]; // solucion permutada
         for (int k = 0; k < i; k++)
-            x[i] -= A[i][k] * x[k];
+            y[i] -= A[i][k] * y[k];
     }
-
+    // ** RESOLVER Ux = y, back-substitution ** //
     for (int i = N - 1; i >= 0; i--) {
-        for (int k = i + 1; k < N; k++)
-            x[i] -= A[i][k] * x[k];
-
+        x[i] = y[i];
+        for (int k = i + 1; k < N; k++) x[i] -= A[i][k] * x[k];
         x[i] = x[i] / A[i][i];
     }
+
+    // ** CALCULO DE ERRORES |Ax* - b| ** //
+    double norma_1 = 0.;
+    double norma_2 = 0.;
+    double norma_inf = 0.;
+    
+    for (int i = 0; i < N; i++){
+        double Ax = 0.;
+        for (int j = 0; j < N; j++){
+            Ax += A_Copy[i][j]*x[j]; // valor de b'
+        }
+        norma_1 += Ax - b[i]; //
+    }
+    
+    cout << "norma 1 error |Ax* - b|: " << norma_1 << endl;
+    
     
     cout << "solucion del sistema" << endl;
     for (int i = 0; i < N; i++) cout << x[i] << ' ';
