@@ -1,3 +1,5 @@
+// AIDAN DEAVES - ALGEBRA LINEAL NUMERICA 2019 - 2020 FME
+
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -67,3 +69,4 @@ int main(){
     
 }
 
+// AIDAN DEAVES - ALGEBRA LINEAL NUMERICA 2019 - 2020 FME

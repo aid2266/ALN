@@ -1,3 +1,6 @@
+// AIDAN DEAVES - ALGEBRA LINEAL NUMERICA 2019 - 2020 FME
+
+
 #ifndef MAIN
 #define MAIN
 
@@ -56,3 +59,5 @@ void resol(MD& A, MD& A_Copy, VD& P, VD& b, VD& x, int N) {
 }
 
 #endif
+
+// AIDAN DEAVES - ALGEBRA LINEAL NUMERICA 2019 - 2020 FME

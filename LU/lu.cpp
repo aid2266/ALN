@@ -1,3 +1,6 @@
+// AIDAN DEAVES - ALGEBRA LINEAL NUMERICA 2019 - 2020 FME
+
+
 #ifndef MAIN
 #define MAIN
 
@@ -159,3 +162,6 @@ static bool abs_compare(double a, double b){
 }
 
 #endif
+
+
+// AIDAN DEAVES - ALGEBRA LINEAL NUMERICA 2019 - 2020 FME
