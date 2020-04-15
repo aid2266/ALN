@@ -94,7 +94,7 @@ int lu(MD& A, VD& b, int n, double tol){
         if (abs(A[pos_max][k]) < tol) return 0; // matriz es singular
         
         swap(A[k], A[pos_max]); // permutamos filas
-        swap(per m[k], perm[pos_max]); // modificamos matriz perm
+        swap(perm[k], perm[pos_max]); // modificamos matriz perm
         numPermutations++; // actualizamos numero de permutaciones
         
         U[k][k] = A[k][k]; // este valor es el que cogemos como pivote!!
