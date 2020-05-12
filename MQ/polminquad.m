@@ -10,6 +10,10 @@ function [coefs, norm2Res] = polminquad(x, y, grau, plt)
 %              norm2Res - residue of |Aa - y| using the 2-norm
 
 %% [1] Creating matrix A of size m x n to QR decompose 
+
+% change x and y to column vectors
+x = x(:); 
+y = y(:); 
 m = length(x); 
 n = grau + 1; 
 A = vander(x); % Vandermonde matrix
