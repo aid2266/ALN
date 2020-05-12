@@ -1,10 +1,10 @@
 % Aidan Deaves
 
-function [x,rho,res,iter] = gaussS(A,b,x0,nmax,prec)
+function [x,rho,res,iter] = jacobi(A,b,x0,nmax,prec)
 % INPUT:        A, b matrices solve G.S
 %               x0 vector inicial
 %               nmax #max iteraciones, prec precisión
-% OUTPUT:       x vector sol, rho radio espectral
+% OUTPUT:       Método de Jacobi: x vector sol, rho radio espectral               
 %               res |Ax - b|_2, iter #iterations
 
 
@@ -19,17 +19,17 @@ end
 x = x0(:) % siempre devuleve vector columna! 
 b = b(:); 
 res0 = norm(b - A*x); 
-if (res < prec) 
+if (res0 < prec) 
     warning('x0 such that |Ax0 - b| < prec!'); 
 end
 
-% [1] Aplicamos Gauss-Sidel
-%     B = - (inv(L + D)) * U,     c = inv(L + D) * b
-
-L = tril(A); % LT, incluye la diagonal
+% [1] Aplicamos Jacobi
+%     B = - inv(D) (L+U),     c = inv(D) * b
+D = diag(D); 
+L = tril(A, 1); % LT, diagonal de 0's
 U = triu(A, 1); % UT, diagonal de 0's 
-c = L\b;
-B = - L\U   % equivalente: inv(L + D) * U
+c = inv(D) * b;
+B = - inv(D) * (L+U);   % equivalente: inv(L + D) * U
 
 % Radio Espectral de B
 rho = max(abs(eig(B))); 
@@ -39,22 +39,10 @@ for iter = 1 : nmax
     x = B*x + c; 
     res = norm(b - A*x) / res0; 
     if (res < prec)
-        return % comença tot el programa de 
-        
+        return % hem acabat! 
     end
 end
 
 iter = -nmax; 
 fprintf('No convergence in %d iterations', nmax); 
 end
-
-
-
-
-
-
-
-
-
-
-
