@@ -13,7 +13,7 @@ function [coefs, norm2Res] = polminquad(x, y, grau, plt)
 m = length(x); 
 n = grau + 1; 
 A = vander(x); % Vandermonde matrix
-A = A(:, m-n+1:m) % imposes m x n Vandermonde Matrix size
+A = A(:, m-n+1:m); % imposes m x n Vandermonde Matrix size
 A_Copy = A; %copy of matrix for later use
 
 %% [2] QR decompose matrix A using Modified Gram-Schmidt process
@@ -29,13 +29,13 @@ coefs = a; % returns value of solution coefficients
 norm2Res = norm(A_Copy*a - y', 2); % least squares error
 
 %% [5] Evaluate fitting polynomial + plot
-h = 0.01; %interval of 'smoothness'
+h = 0.01; %interval mimicks 'smoothness'
 xx = [x(1)-10*h:h:x(end)+10*h]; %space for graphing
 yy = polyval(a, xx); %evaluate fitting with least squares solution
 
-if plt == 1
+if plt == 1 % plot graph if true
     figure(1); 
-    title('Table 1 data')
+    title('Table 1 data') 
     xlabel('x')
     ylabel('y')
     scatter(x, y, 'r', 'filled') %plots x and y  
@@ -63,7 +63,7 @@ end
 end
 
 
-%% Solves upper triangular system Ra = Q'y
+%% Solves upper triangular system Ra = Q'y, checks if R is singular
 function [a] = solveQR(Q, R, y)
 % INPUT:    Matrices Q, R from mod. Gram-Schmidt process
 %           y-axis vector
