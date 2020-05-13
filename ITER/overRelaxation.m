@@ -17,7 +17,6 @@ end
 % [0] Cálculos previos sobre los vectores INPUT
 x = x0(:); % siempre devuleve vector columna! 
 b = b(:); 
-[m n] = size(A); 
 res0 = norm(b - A*x); 
 if (res0 < prec) 
     warning('x0 such that |Ax0 - b| < prec!'); 

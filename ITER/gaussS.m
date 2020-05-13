@@ -16,7 +16,7 @@ if min(abs(D))<tol %check for zeros on the diagonal
 end
 
 % [0] Cálculos previos sobre los vectores INPUT
-x = x0(:) % siempre devuleve vector columna! 
+x = x0(:); % siempre devuleve vector columna! 
 b = b(:); 
 res0 = norm(b - A*x); 
 if (res0 < prec) 
@@ -29,7 +29,7 @@ end
 L = tril(A); % LT, incluye la diagonal
 U = triu(A, 1); % UT, diagonal de 0's 
 c = L\b;
-B = - L\U   % equivalente: inv(L + D) * U
+B = - L\U;   % equivalente: inv(L + D) * U
 
 % Radio Espectral de B
 rho = max(abs(eig(B))); 
