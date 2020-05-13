@@ -1,12 +1,11 @@
 % Aidan Deaves
 
-function [x,rho,res,iter] = jacobi(A,b,x0,nmax,prec)
+function [x,rho,res,iter] = overRelaxation(A,b,x0,w,nmax,prec)
 % INPUT:        A, b matrices solve G.S
-%               x0 vector inicial
+%               x0 vector inicial, w 
 %               nmax #max iteraciones, prec precisión
-% OUTPUT:       Método de Jacobi: x vector sol, rho radio espectral               
+% OUTPUT:       x vector sol, rho radio espectral
 %               res |Ax - b|_2, iter #iterations
-
 
 % [0] Test matriz diagonal para valores pequeños (warning inversa!)
 tol=1.0e-10;
@@ -45,3 +44,6 @@ end
 iter = -nmax; 
 fprintf('No convergence in %d iterations', nmax); 
 end
+
+
+

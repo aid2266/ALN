@@ -1,12 +1,11 @@
 % Aidan Deaves
 
-function [x,rho,res,iter] = jacobi(A,b,x0,nmax,prec)
+function [x,rho,res,iter] = overRelaxation(A,b,x0,w,nmax,prec)
 % INPUT:        A, b matrices solve G.S
-%               x0 vector inicial
+%               x0 vector inicial, w 
 %               nmax #max iteraciones, prec precisión
-% OUTPUT:       Método de Jacobi: x vector sol, rho radio espectral               
+% OUTPUT:       x vector sol, rho radio espectral
 %               res |Ax - b|_2, iter #iterations
-
 
 % [0] Test matriz diagonal para valores pequeños (warning inversa!)
 tol=1.0e-10;
@@ -16,7 +15,7 @@ if min(abs(D))<tol %check for zeros on the diagonal
 end
 
 % [0] Cálculos previos sobre los vectores INPUT
-x = x0(:) % siempre devuleve vector columna! 
+x = x0(:); % siempre devuleve vector columna! 
 b = b(:); 
 [m n] = size(A); 
 res0 = norm(b - A*x); 
@@ -24,11 +23,14 @@ if (res0 < prec)
     warning('x0 such that |Ax0 - b| < prec!'); 
 end
 
-% [1] Aplicamos Jacobi
-%     B = - inv(D) (L+U),     c = inv(D) * b
+% [1] Aplicamos SOR
 D = diag(D); % matriz cuadrada diagonal
+L = tril(A, -1);
+U = triu(A, 1); 
+
 c = inv(D) * b;
-B = eye(n) - inv(D) * (A);  
+B = inv(D + w*L)*((1-w)*D - w*U); 
+c = w * inv(D + w*L) * b; 
 
 % Radio Espectral de B
 rho = max(abs(eig(B))); 
@@ -45,3 +47,6 @@ end
 iter = -nmax; 
 fprintf('No convergence in %d iterations', nmax); 
 end
+
+
+
