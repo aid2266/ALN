@@ -1,6 +1,4 @@
 // AIDAN DEAVES - ALGEBRA LINEAL NUMERICA 2019 - 2020 FME
-
-
 #ifndef MAIN
 #define MAIN
 
@@ -47,7 +45,10 @@ int lu(MD& A, VD& b, VD& x, int N, double tol) {
     for (int i = 0; i < N; i++) {
         int imax = find_max_pivot(A, N, i); // pos pivote max, parcial escalonado, mirar funcion final del documento
         
-        if (abs(A[imax][i]) < tol) return 0; //matriz es degenerada
+        if (abs(A[imax][i]) < tol) {
+            cout << "Matriz A introducida es singular" << endl;
+            return 0; //matriz es degenerada
+        }
         
         swap(A[i], A[imax]); // realizamos cambio de filas
         swap(P[i], P[imax]); // actualizamos vector perm.
@@ -75,18 +76,19 @@ int lu(MD& A, VD& b, VD& x, int N, double tol) {
     
     // ** CALCULO DEL DETERMINANTE ** //
     double det = 1.;
-    for (int i = 0; i < N; i++) det *= U[i][i];
+    for (int i = 0; i < N; i++) det *= U[i][i]; // signo del determinante!!
+    if (perm_counter % 2 == 1) det = -det;
     
     // ** CALCULO DEL ERROR |PA - LU| norma 1 ** //
     MD LU(N, VD(N)); // inicializamos matriz producto L*U
     
-    double norma_1 = 0.;
+    double norma_1 = 0;
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++) {
             for (int k = 0; k < N; k++){
                 LU[i][j] += L[i][k] * U[k][j]; // calculamos producto LU
             }
-            norma_1 = abs(A_Copy[P[i]][j] - LU[i][j]); // abs(PA - LU)
+            norma_1 += abs(A_Copy[P[i]][j] - LU[i][j]); // abs(PA - LU)
         }
     }
     

@@ -24,7 +24,7 @@ void resol(MD& A, MD& A_Copy, VD& P, VD& b, VD& x, int N);
 int main(){
     
     ifstream inFile;
-    inFile.open("/Users/aidandeaves/Documents/ALN/ALN_P1/ALN_P2/MAT/M02.DAT"); // change this file!!
+    inFile.open("/Users/aidandeaves/Documents/ALN/ALN_P1/LU/MAT/M10.DAT"); // change this file!!
     
     // check for any errors
     if (inFile.fail()){
