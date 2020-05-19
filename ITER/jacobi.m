@@ -27,8 +27,8 @@ end
 % [1] Aplicamos Jacobi
 %     B = - inv(D) (L+U),     c = inv(D) * b
 D = diag(D); % matriz cuadrada diagonal
-c = inv(D) * b;
-B = eye(n) - inv(D) * (A);  
+c = D\b;
+B = eye(n) - D\A;  
 
 % Radio Espectral de B
 rho = max(abs(eig(B))); 

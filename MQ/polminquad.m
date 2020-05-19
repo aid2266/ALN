@@ -11,8 +11,7 @@ function [coefs, norm2Res] = polminquad(x, y, grau, plt)
 
 %% [1] Creating matrix A of size m x n to QR decompose 
 
-% change x and y to column vectors
-x = x(:); 
+x = x(:); % change x and y to column vectors
 y = y(:); 
 m = length(x); 
 n = grau + 1; 
@@ -30,7 +29,7 @@ Q_res = norm(Q'* Q - eye(n), inf)
 %% [4] Solve linear system Ra = Q'y, checks if R is singular
 [a] = solveQR(Q, R, y); 
 coefs = a; % returns value of solution coefficients 
-norm2Res = norm(A_Copy*a - y', 2); % least squares error
+norm2Res = norm(A_Copy*a - y, 2); % least squares error
 
 %% [5] Evaluate fitting polynomial + plot
 h = 0.01; %interval mimicks 'smoothness'
@@ -63,7 +62,7 @@ for k = 1:n
     j = k + 1; 
     R(k,j:end) = Q(:,k)' * Q(:,j:end);
     Q(:,j:end) = Q(:,j:end) - Q(:,k)*R(k,j:end); %orthogonalise k+1 columns
-end 
+end  
 end
 
 
@@ -82,6 +81,6 @@ if (detR < TOL)
 end
 
 % Solve system
-a = R\(transpose(Q) * y'); 
+a = R\(transpose(Q) * y); 
 
 end 

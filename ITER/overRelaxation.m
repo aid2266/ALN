@@ -27,8 +27,8 @@ D = diag(D); % matriz cuadrada diagonal
 L = tril(A, -1);
 U = triu(A, 1); 
 
-c = inv(D) * b;
-B = inv(D + w*L)*((1-w)*D - w*U); 
+c = D\b;
+B = (D + w*L)\((1-w)*D - w*U); 
 c = w * inv(D + w*L) * b; 
 
 % Radio Espectral de B
